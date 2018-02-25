@@ -78,7 +78,7 @@ class DataPreprocessing(DataAugmentation):
 		for folder_name in os.listdir(self.DATA_DIR):
 			print("In folder", folder_name)
 			folder_count += 1
-			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name):
+			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name)[0:5]:
 				print(file_name)
 				image = None
 				label = None
