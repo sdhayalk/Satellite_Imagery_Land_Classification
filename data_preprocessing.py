@@ -64,9 +64,6 @@ class DataPreprocessing(DataAugmentation):
 
 
 	def augment_and_convert_to_hdf5(self, train_validation_counter, hdf5_train_filename, hdf5_validation_filename, augmentation_factor=1, flip_90=True, flip_180=True, flip_270=True, flip_vertically=True, flip_horizontally=True, random_rotate=True, random_zoom=True, random_lightning=True):
-		f_train = h5py.File(hdf5_train_filename, 'w')
-		f_test = h5py.File(hdf5_validation_filename, 'w')
-
 		counter = 0
 		folder_count = -1
 		first_flag = True
@@ -74,10 +71,13 @@ class DataPreprocessing(DataAugmentation):
 		for folder_name in os.listdir(self.DATA_DIR):
 			print("In folder", folder_name)
 			folder_count += 1
-			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name)[0:50]:
+
+			f_train = h5py.File(hdf5_train_filename + str(folder_count), 'w')
+			f_test = h5py.File(hdf5_validation_filename + str(folder_count), 'w')
+
+			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name):
 				print(file_name)
 				image = None
-				label = None
 				images_train_dataset_temp = []
 				labels_train_dataset_temp = []
 
@@ -117,10 +117,10 @@ class DataPreprocessing(DataAugmentation):
 					new_image = self.flip_horizontally(image.copy())
 					images_train_dataset_temp.append(new_image)
 					labels_train_dataset_temp.append(label)
-
 				
 				images_train_dataset_temp = np.array(images_train_dataset_temp, dtype='float')
-				labels_train_dataset_temp = np.array(labels_train_dataset_temp, dtype='int')	
+				labels_train_dataset_temp = np.array(labels_train_dataset_temp, dtype='int')
+				images_train_dataset_temp = images_train_dataset_temp / 255.0	
 
 				num_images = 6 #* len(os.listdir(self.DATA_DIR + os.sep + folder_name))
 

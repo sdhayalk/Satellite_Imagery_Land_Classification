@@ -5,12 +5,9 @@ layer {
   type: "HDF5Data"
   top: "data"
   top: "label"
-  include {
-    phase: TRAIN
-  }
   hdf5_data_param {
     source: "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/dataset_train.txt"
-    batch_size: 6
+    batch_size: 4
   }
 }
 
@@ -1322,27 +1319,6 @@ layer {
 	}
 }
 
-layer {
-	bottom: "res4b_branch2c"
-	top: "res4b_branch2c"
-	name: "scale4b_branch2c"
-	type: "Scale"
-	scale_param {
-		bias_term: true
-	}
-}
-
-layer {
-	bottom: "res4b_branch2c"
-	top: "res4b_branch2c"
-	name: "pool9"
-	type: "Pooling"
-	pooling_param {
-		kernel_size: 4
-		stride: 1
-		pool: MAX
-	}
-}
 
 
 # defining first fully connected layer, also called as inner product, with name ip1
@@ -1381,7 +1357,7 @@ layer {
     lr_mult: 2
   }
   inner_product_param {
-    num_output: 10
+    num_output: 40
     weight_filler {
       type: "xavier"
     }
