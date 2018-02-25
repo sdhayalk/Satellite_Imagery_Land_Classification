@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import h5py
+import copy
 
 from PIL import Image
 
@@ -58,7 +59,7 @@ class DataAugmentation:
 class DataPreprocessing(DataAugmentation):
 
 	def __init__(self, DATA_DIR, RESIZE_DIM):
-		DataAugmentation.__init__(RESIZE_DIM)
+		DataAugmentation.__init__(self, RESIZE_DIM)
 		self.DATA_DIR = DATA_DIR
 
 
@@ -67,11 +68,18 @@ class DataPreprocessing(DataAugmentation):
 		labels_train_dataset = []
 		images_validation_dataset = []
 		labels_validation_dataset = []
+		f_train = h5py.File(hdf5_train_filename, 'w')
+		f_test = h5py.File(hdf5_validation_filename, 'w')
+
 		counter = 0
+		folder_count = -1
+		first_flag = True
 
 		for folder_name in os.listdir(self.DATA_DIR):
 			print("In folder", folder_name)
+			folder_count += 1
 			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name):
+				print(file_name)
 				image = None
 				label = None
 				images_train_dataset_temp = []
@@ -85,7 +93,7 @@ class DataPreprocessing(DataAugmentation):
 				image = cv2.resize(image, (self.RESIZE_DIM, self.RESIZE_DIM))
 				new_image = image.copy()
 				new_image = new_image.reshape((3, self.RESIZE_DIM, self.RESIZE_DIM))
-				label = folder_name
+				label = folder_count
 				images_train_dataset_temp.append(new_image)
 				labels_train_dataset_temp.append(label)
 
@@ -115,7 +123,7 @@ class DataPreprocessing(DataAugmentation):
 					labels_train_dataset_temp.append(label)
 
 				
-				if counter == train_validation_counter:
+				if counter != train_validation_counter:
 					images_train_dataset.extend(images_train_dataset_temp)
 					labels_train_dataset.extend(labels_train_dataset_temp)
 					counter += 1
@@ -124,15 +132,51 @@ class DataPreprocessing(DataAugmentation):
 					labels_validation_dataset.extend(labels_train_dataset_temp)
 					counter = 0
 
-		with h5py.File(hdf5_train_filename, 'w') as f:
-			f['data'] = images_train_dataset
-			f['label'] = labels_train_dataset
 
-		with h5py.File(hdf5_validation_filename, 'w') as f:
-			f['data'] = images_validation_dataset
-			f['label'] = labels_validation_dataset
+				images_train_dataset_np = np.array(images_train_dataset, dtype='float')
+				labels_train_dataset_np = copy.deepcopy(labels_train_dataset)
+				images_validation_dataset_np = np.array(images_validation_dataset, dtype='float')
+				labels_validation_dataset_np = copy.deepcopy(labels_validation_dataset)
 
-		print("Saved as HDF5")
+				images_train_dataset_np = images_train_dataset_np / 255.0
+				images_validation_dataset_np = images_validation_dataset_np / 255.0
+
+				print('images_train_dataset_np.shape', images_train_dataset_np.shape, 'labels_train_dataset_np.shape:', len(labels_train_dataset_np))
+				print('images_validation_dataset_np.shape', images_validation_dataset_np.shape, 'labels_validation_dataset_np.shape:', len(labels_validation_dataset_np))
+
+				num_images = 6 #* len(os.listdir(self.DATA_DIR + os.sep + folder_name))
+
+				if first_flag:
+					f_train_data = f_train.create_dataset("data", (num_images,3,224,224), maxshape=(None,3,224,224), chunks=(num_images,3,224,224))
+					f_train_label = f_train.create_dataset("label", (num_images,), maxshape=(None,), chunks=(num_images,))
+					f_test_data = f_test.create_dataset("data", (num_images,3,224,224), maxshape=(None,3,224,224), chunks=(num_images,3,224,224))
+					f_test_label = f_test.create_dataset("label", (num_images,), maxshape=(None,), chunks=(num_images,))
+
+					try:
+						f_train_data[:] = images_train_dataset_np
+						f_train_label[:] = labels_train_dataset_np
+						f_test_data[:] = images_validation_dataset_np
+						f_test_label[:] = labels_validation_dataset_np
+					except:
+						pass
+					
+				else:
+					if counter != train_validation_counter:
+						f_train_data.resize(f_train_data.shape[0] + num_images, axis=0)
+						f_train_label.resize(f_train_label.shape[0] + num_images, axis=0)
+						f_train_data[-num_images:] = images_train_dataset_np[-1]
+						f_train_label[-num_images:] = labels_train_dataset_np[-1]
+						counter += 1
+					
+					else:
+						f_test_data.resize(f_test_data.shape[0] + num_images, axis=0)
+						f_test_label.resize(f_test_label.shape[0] + num_images, axis=0)
+						f_test_data[-num_images:] = images_validation_dataset_np[-1]
+						f_test_label[-num_images:] = labels_validation_dataset_np[-1]
+						counter = 0
+
+				print("Saved", folder_name,  "as HDF5")
+				first_flag = False
 			
 
 
