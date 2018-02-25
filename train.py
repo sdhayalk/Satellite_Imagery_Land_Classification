@@ -29,7 +29,7 @@ class Training:
 
 
 	def train(self):
-		display_stats(self.net)
+		self.display_stats(self.net)
 		self.solver.solve()
 
 
