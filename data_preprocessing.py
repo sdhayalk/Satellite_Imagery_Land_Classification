@@ -71,9 +71,10 @@ class DataPreprocessing(DataAugmentation):
 		for folder_name in os.listdir(self.DATA_DIR):
 			print("In folder", folder_name)
 			folder_count += 1
+			first_flag = True
 
-			f_train = h5py.File(hdf5_train_filename + str(folder_count), 'w')
-			f_test = h5py.File(hdf5_validation_filename + str(folder_count), 'w')
+			f_train = h5py.File(hdf5_train_filename[:-5] + str(folder_count) + hdf5_train_filename[-5:], 'w')
+			f_test = h5py.File(hdf5_validation_filename[:-5] + str(folder_count) + hdf5_validation_filename[-5:], 'w')
 
 			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name):
 				print(file_name)
@@ -108,21 +109,21 @@ class DataPreprocessing(DataAugmentation):
 					images_train_dataset_temp.append(new_image)
 					labels_train_dataset_temp.append(label)
 
-				if flip_vertically:
-					new_image = self.flip_vertically(image.copy())
-					images_train_dataset_temp.append(new_image)
-					labels_train_dataset_temp.append(label)
+				# if flip_vertically:
+				# 	new_image = self.flip_vertically(image.copy())
+				# 	images_train_dataset_temp.append(new_image)
+				# 	labels_train_dataset_temp.append(label)
 
-				if flip_horizontally:
-					new_image = self.flip_horizontally(image.copy())
-					images_train_dataset_temp.append(new_image)
-					labels_train_dataset_temp.append(label)
+				# if flip_horizontally:
+				# 	new_image = self.flip_horizontally(image.copy())
+				# 	images_train_dataset_temp.append(new_image)
+				# 	labels_train_dataset_temp.append(label)
 				
 				images_train_dataset_temp = np.array(images_train_dataset_temp, dtype='float')
 				labels_train_dataset_temp = np.array(labels_train_dataset_temp, dtype='int')
 				images_train_dataset_temp = images_train_dataset_temp / 255.0	
 
-				num_images = 6 #* len(os.listdir(self.DATA_DIR + os.sep + folder_name))
+				num_images = 4 #* len(os.listdir(self.DATA_DIR + os.sep + folder_name))
 
 				if first_flag:
 					f_train_data = f_train.create_dataset("data", (num_images,3,224,224), maxshape=(None,3,224,224), chunks=(num_images,3,224,224))
