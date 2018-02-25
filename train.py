@@ -29,13 +29,13 @@ class Training:
 
 
 	def train(self):
-		self.display_stats(self.net)
+		self.display_stats()
 		self.solver.solve()
 
 
 def main():
-	CNN_NETWORK_PATH = ""
-	CNN_SOLVER_PATH = ""
+	CNN_NETWORK_PATH = "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-50-train.prototxt"
+	CNN_SOLVER_PATH = "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-50-solver.prototxt"
 	USE_GPU = True
 
 	training = Training(CNN_NETWORK_PATH, CNN_SOLVER_PATH, USE_GPU=USE_GPU)

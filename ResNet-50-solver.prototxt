@@ -2,7 +2,7 @@
 net: "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-50-train.prototxt"
 
 # The base learning rate, momentum and the weight decay of the network.
-base_lr: 0.001
+base_lr: 0.01
 momentum: 0.9
 weight_decay: 0.0005
 

@@ -64,10 +64,6 @@ class DataPreprocessing(DataAugmentation):
 
 
 	def augment_and_convert_to_hdf5(self, train_validation_counter, hdf5_train_filename, hdf5_validation_filename, augmentation_factor=1, flip_90=True, flip_180=True, flip_270=True, flip_vertically=True, flip_horizontally=True, random_rotate=True, random_zoom=True, random_lightning=True):
-		images_train_dataset = []
-		labels_train_dataset = []
-		images_validation_dataset = []
-		labels_validation_dataset = []
 		f_train = h5py.File(hdf5_train_filename, 'w')
 		f_test = h5py.File(hdf5_validation_filename, 'w')
 
@@ -78,7 +74,7 @@ class DataPreprocessing(DataAugmentation):
 		for folder_name in os.listdir(self.DATA_DIR):
 			print("In folder", folder_name)
 			folder_count += 1
-			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name)[0:5]:
+			for file_name in os.listdir(self.DATA_DIR + os.sep + folder_name)[0:50]:
 				print(file_name)
 				image = None
 				label = None
@@ -123,26 +119,8 @@ class DataPreprocessing(DataAugmentation):
 					labels_train_dataset_temp.append(label)
 
 				
-				if counter != train_validation_counter:
-					images_train_dataset.extend(images_train_dataset_temp)
-					labels_train_dataset.extend(labels_train_dataset_temp)
-					counter += 1
-				else:
-					images_validation_dataset.extend(images_train_dataset_temp)
-					labels_validation_dataset.extend(labels_train_dataset_temp)
-					counter = 0
-
-
-				images_train_dataset_np = np.array(images_train_dataset, dtype='float')
-				labels_train_dataset_np = copy.deepcopy(labels_train_dataset)
-				images_validation_dataset_np = np.array(images_validation_dataset, dtype='float')
-				labels_validation_dataset_np = copy.deepcopy(labels_validation_dataset)
-
-				images_train_dataset_np = images_train_dataset_np / 255.0
-				images_validation_dataset_np = images_validation_dataset_np / 255.0
-
-				print('images_train_dataset_np.shape', images_train_dataset_np.shape, 'labels_train_dataset_np.shape:', len(labels_train_dataset_np))
-				print('images_validation_dataset_np.shape', images_validation_dataset_np.shape, 'labels_validation_dataset_np.shape:', len(labels_validation_dataset_np))
+				images_train_dataset_temp = np.array(images_train_dataset_temp, dtype='float')
+				labels_train_dataset_temp = np.array(labels_train_dataset_temp, dtype='int')	
 
 				num_images = 6 #* len(os.listdir(self.DATA_DIR + os.sep + folder_name))
 
@@ -153,10 +131,10 @@ class DataPreprocessing(DataAugmentation):
 					f_test_label = f_test.create_dataset("label", (num_images,), maxshape=(None,), chunks=(num_images,))
 
 					try:
-						f_train_data[:] = images_train_dataset_np
-						f_train_label[:] = labels_train_dataset_np
-						f_test_data[:] = images_validation_dataset_np
-						f_test_label[:] = labels_validation_dataset_np
+						f_train_data[:] = images_train_dataset_temp
+						f_train_label[:] = labels_train_dataset_temp
+						f_test_data[:] = images_train_dataset_temp
+						f_test_label[:] = labels_train_dataset_temp
 					except:
 						pass
 					
@@ -164,19 +142,21 @@ class DataPreprocessing(DataAugmentation):
 					if counter != train_validation_counter:
 						f_train_data.resize(f_train_data.shape[0] + num_images, axis=0)
 						f_train_label.resize(f_train_label.shape[0] + num_images, axis=0)
-						f_train_data[-num_images:] = images_train_dataset_np[-1]
-						f_train_label[-num_images:] = labels_train_dataset_np[-1]
+						f_train_data[-num_images:] = images_train_dataset_temp
+						f_train_label[-num_images:] = labels_train_dataset_temp
 						counter += 1
 					
 					else:
 						f_test_data.resize(f_test_data.shape[0] + num_images, axis=0)
 						f_test_label.resize(f_test_label.shape[0] + num_images, axis=0)
-						f_test_data[-num_images:] = images_validation_dataset_np[-1]
-						f_test_label[-num_images:] = labels_validation_dataset_np[-1]
+						f_test_data[-num_images:] = images_train_dataset_temp
+						f_test_label[-num_images:] = labels_train_dataset_temp
 						counter = 0
 
-				print("Saved", folder_name,  "as HDF5")
 				first_flag = False
+				print('Saved image', file_name, '~ current trainhdf5 dshape:', f_train_data.shape)
+			print("Saved", folder_name,  "as HDF5")
+				
 			
 
 
