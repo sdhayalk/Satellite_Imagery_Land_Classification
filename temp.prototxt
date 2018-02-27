@@ -17,7 +17,7 @@ layer {
 layer {
 	name: "rb1_bn1"
 	type: "BatchNorm"
-	bottom: "???"
+	bottom: "data"
 	top: "rb1_bn1"
 	batch_norm_param {
 		use_global_stats: false
@@ -29,7 +29,7 @@ layer {
 layer {
 	name: "rb1_bn1"
 	type: "BatchNorm"
-	bottom: "???"
+	bottom: "data"
 	top: "rb1_bn1"
 	batch_norm_param {
 		use_global_stats: true
@@ -123,6 +123,42 @@ layer {
 		bias_filler {
 			type: "constant"
 		}
+	}
+}
+
+# 1x1 pointwise conv for inreasing number of channels
+layer {
+  	name: "rb1_conv0"
+	type: "Convolution"
+	bottom: "data"
+	top: "rb1_conv0"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 32
+		kernel_size: 1
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "eltwise_sum1"
+	type: "Eltwise"
+	bottom: "rb1_conv0"
+	bottom: "rb1_conv1"
+	top: "eltwise_sum1"
+	eltwise_param { 
+		operation: SUM
 	}
 }
 
