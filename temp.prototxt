@@ -1,0 +1,37 @@
+name: "ResNet"
+
+layer {
+  name: "geodata"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  hdf5_data_param {
+    source: "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/dataset_train.txt"
+    batch_size: 4
+  }
+}
+
+
+layer {
+  	name: "conv1"
+	type: "Convolution"
+	bottom: "data"
+	top: "conv1"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 32
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
