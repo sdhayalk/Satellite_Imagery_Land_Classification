@@ -313,8 +313,8 @@ layer {
 }
 layer {
 	name: "rb3_bn1"
-	type: "eltwise_sum2"
-	bottom: "data"
+	type: "BatchNorm"
+	bottom: "eltwise_sum2"
 	top: "rb3_bn1"
 	batch_norm_param {
 		use_global_stats: true
@@ -467,7 +467,7 @@ layer {
 }
 layer {
 	name: "rb4_bn1"
-	type: "eltwise_sum3"
+	type: "BatchNorm"
 	bottom: "data"
 	top: "rb4_bn1"
 	batch_norm_param {
@@ -578,5 +578,289 @@ layer {
 }
 
 # residual block 4 end
+
+
+
+# residual block 5 start
+
+layer {
+	name: "rb5_bn1"
+	type: "BatchNorm"
+	bottom: "eltwise_sum4"
+	top: "rb5_bn1"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb5_bn1"
+	type: "BatchNorm"
+	bottom: "data"
+	top: "rb5_bn1"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb5_relu1"
+  type: "ReLU"
+  bottom: "rb5_bn1"
+  top: "rb5_relu1"
+}
+
+layer {
+  	name: "rb5_conv1"
+	type: "Convolution"
+	bottom: "rb5_relu1"
+	top: "rb5_conv1"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 256
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "rb5_bn2"
+	type: "BatchNorm"
+	bottom: "rb5_conv1"
+	top: "rb5_bn2"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb5_bn2"
+	type: "BatchNorm"
+	bottom: "rb5_conv1"
+	top: "rb5_bn2"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb5_relu2"
+  type: "ReLU"
+  bottom: "rb5_bn2"
+  top: "rb5_relu2"
+}
+
+layer {
+  	name: "rb5_conv2"
+	type: "Convolution"
+	bottom: "rb5_relu2"
+	top: "rb5_conv2"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 256
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+# 1x1 pointwise conv for inreasing number of channels
+layer {
+  	name: "rb5_conv0"
+	type: "Convolution"
+	bottom: "eltwise_sum4"
+	top: "rb5_conv0"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 256
+		kernel_size: 1
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "eltwise_sum5"
+	type: "Eltwise"
+	bottom: "rb5_conv0"
+	bottom: "rb5_conv2"
+	top: "eltwise_sum5"
+	eltwise_param { 
+		operation: SUM
+	}
+}
+
+# residual block 5 end
+
+
+
+# residual block 6 start
+
+layer {
+	name: "rb6_bn1"
+	type: "BatchNorm"
+	bottom: "eltwise_sum5"
+	top: "rb6_bn1"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb6_bn1"
+	type: "BatchNorm"
+	bottom: "data"
+	top: "rb6_bn1"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb6_relu1"
+  type: "ReLU"
+  bottom: "rb6_bn1"
+  top: "rb6_relu1"
+}
+
+layer {
+  	name: "rb6_conv1"
+	type: "Convolution"
+	bottom: "rb6_relu1"
+	top: "rb6_conv1"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 256
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "rb6_bn2"
+	type: "BatchNorm"
+	bottom: "rb6_conv1"
+	top: "rb6_bn2"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb6_bn2"
+	type: "BatchNorm"
+	bottom: "rb6_conv1"
+	top: "rb6_bn2"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb6_relu2"
+  type: "ReLU"
+  bottom: "rb6_bn2"
+  top: "rb6_relu2"
+}
+
+layer {
+  	name: "rb6_conv2"
+	type: "Convolution"
+	bottom: "rb6_relu2"
+	top: "rb6_conv2"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 256
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+
+layer {
+	name: "eltwise_sum6"
+	type: "Eltwise"
+	bottom: "eltwise_sum5"
+	bottom: "rb6_conv2"
+	top: "eltwise_sum6"
+	eltwise_param { 
+		operation: SUM
+	}
+}
+
+# residual block 6 end
 
 
