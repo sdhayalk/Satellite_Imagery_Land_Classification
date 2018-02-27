@@ -12,11 +12,45 @@ layer {
 }
 
 
+# residual block 1 start
+
 layer {
-  	name: "conv1"
+	name: "rb1_bn1"
+	type: "BatchNorm"
+	bottom: "???"
+	top: "rb1_bn1"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb1_bn1"
+	type: "BatchNorm"
+	bottom: "???"
+	top: "rb1_bn1"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb1_relu1"
+  type: "ReLU"
+  bottom: "rb1_bn1"
+  top: "rb1_relu1"
+}
+
+layer {
+  	name: "rb1_conv1"
 	type: "Convolution"
-	bottom: "data"
-	top: "conv1"
+	bottom: "rb1_relu1"
+	top: "rb1_conv1"
 	param {
 		lr_mult: 1
 	}
@@ -35,3 +69,61 @@ layer {
 		}
 	}
 }
+
+layer {
+	name: "rb1_bn2"
+	type: "BatchNorm"
+	bottom: "rb1_conv1"
+	top: "rb1_bn2"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb1_bn2"
+	type: "BatchNorm"
+	bottom: "rb1_conv1"
+	top: "rb1_bn2"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb1_relu2"
+  type: "ReLU"
+  bottom: "rb1_bn2"
+  top: "rb1_relu2"
+}
+
+layer {
+  	name: "rb1_conv1"
+	type: "Convolution"
+	bottom: "rb1_relu1"
+	top: "rb1_conv1"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 32
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+# residual block 1 end
