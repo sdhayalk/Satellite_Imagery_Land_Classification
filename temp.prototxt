@@ -1,3 +1,5 @@
+# Enter your network definition here.
+# Use Shift+Enter to update the visualization.
 name: "ResNet"
 
 layer {
@@ -58,7 +60,7 @@ layer {
 		lr_mult: 2
 	}
 	convolution_param {
-		num_output: 32
+		num_output: 64
 		kernel_size: 3
 		stride: 1
 		weight_filler {
@@ -103,10 +105,10 @@ layer {
 }
 
 layer {
-  	name: "rb1_conv1"
+  	name: "rb1_conv2"
 	type: "Convolution"
-	bottom: "rb1_relu1"
-	top: "rb1_conv1"
+	bottom: "rb1_relu2"
+	top: "rb1_conv2"
 	param {
 		lr_mult: 1
 	}
@@ -114,7 +116,7 @@ layer {
 		lr_mult: 2
 	}
 	convolution_param {
-		num_output: 32
+		num_output: 64
 		kernel_size: 3
 		stride: 1
 		weight_filler {
@@ -139,7 +141,7 @@ layer {
 		lr_mult: 2
 	}
 	convolution_param {
-		num_output: 32
+		num_output: 64
 		kernel_size: 1
 		stride: 1
 		weight_filler {
@@ -155,7 +157,7 @@ layer {
 	name: "eltwise_sum1"
 	type: "Eltwise"
 	bottom: "rb1_conv0"
-	bottom: "rb1_conv1"
+	bottom: "rb1_conv2"
 	top: "eltwise_sum1"
 	eltwise_param { 
 		operation: SUM
@@ -163,3 +165,418 @@ layer {
 }
 
 # residual block 1 end
+
+
+# residual block 2 start
+
+layer {
+	name: "rb2_bn1"
+	type: "BatchNorm"
+	bottom: "eltwise_sum1"
+	top: "rb2_bn1"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb2_bn1"
+	type: "BatchNorm"
+	bottom: "data"
+	top: "rb2_bn1"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb2_relu1"
+  type: "ReLU"
+  bottom: "rb2_bn1"
+  top: "rb2_relu1"
+}
+
+layer {
+  	name: "rb2_conv1"
+	type: "Convolution"
+	bottom: "rb2_relu1"
+	top: "rb2_conv1"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 64
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "rb2_bn2"
+	type: "BatchNorm"
+	bottom: "rb2_conv1"
+	top: "rb2_bn2"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb2_bn2"
+	type: "BatchNorm"
+	bottom: "rb2_conv1"
+	top: "rb2_bn2"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb2_relu2"
+  type: "ReLU"
+  bottom: "rb2_bn2"
+  top: "rb2_relu2"
+}
+
+layer {
+  	name: "rb2_conv2"
+	type: "Convolution"
+	bottom: "rb2_relu2"
+	top: "rb2_conv2"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 64
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+
+layer {
+	name: "eltwise_sum2"
+	type: "Eltwise"
+	bottom: "eltwise_sum1"
+	bottom: "rb2_conv2"
+	top: "eltwise_sum2"
+	eltwise_param { 
+		operation: SUM
+	}
+}
+
+# residual block 2 end
+
+
+
+# residual block 3 start
+
+layer {
+	name: "rb3_bn1"
+	type: "BatchNorm"
+	bottom: "eltwise_sum2"
+	top: "rb3_bn1"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb3_bn1"
+	type: "eltwise_sum2"
+	bottom: "data"
+	top: "rb3_bn1"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb3_relu1"
+  type: "ReLU"
+  bottom: "rb3_bn1"
+  top: "rb3_relu1"
+}
+
+layer {
+  	name: "rb3_conv1"
+	type: "Convolution"
+	bottom: "rb3_relu1"
+	top: "rb3_conv1"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 128
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "rb3_bn2"
+	type: "BatchNorm"
+	bottom: "rb3_conv1"
+	top: "rb3_bn2"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb3_bn2"
+	type: "BatchNorm"
+	bottom: "rb3_conv1"
+	top: "rb3_bn2"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb3_relu2"
+  type: "ReLU"
+  bottom: "rb3_bn2"
+  top: "rb3_relu2"
+}
+
+layer {
+  	name: "rb3_conv2"
+	type: "Convolution"
+	bottom: "rb3_relu2"
+	top: "rb3_conv2"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 128
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+# 1x1 pointwise conv for inreasing number of channels
+layer {
+  	name: "rb3_conv0"
+	type: "Convolution"
+	bottom: "eltwise_sum2"
+	top: "rb3_conv0"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 128
+		kernel_size: 1
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "eltwise_sum3"
+	type: "Eltwise"
+	bottom: "rb3_conv0"
+	bottom: "rb3_conv2"
+	top: "eltwise_sum3"
+	eltwise_param { 
+		operation: SUM
+	}
+}
+
+# residual block 3 end
+
+
+
+# residual block 4 start
+
+layer {
+	name: "rb4_bn1"
+	type: "BatchNorm"
+	bottom: "eltwise_sum3"
+	top: "rb4_bn1"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb4_bn1"
+	type: "eltwise_sum3"
+	bottom: "data"
+	top: "rb4_bn1"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb4_relu1"
+  type: "ReLU"
+  bottom: "rb4_bn1"
+  top: "rb4_relu1"
+}
+
+layer {
+  	name: "rb4_conv1"
+	type: "Convolution"
+	bottom: "rb4_relu1"
+	top: "rb4_conv1"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 128
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+layer {
+	name: "rb4_bn2"
+	type: "BatchNorm"
+	bottom: "rb4_conv1"
+	top: "rb4_bn2"
+	batch_norm_param {
+		use_global_stats: false
+	}
+	include {
+		phase: TRAIN
+	}
+}
+layer {
+	name: "rb4_bn2"
+	type: "BatchNorm"
+	bottom: "rb4_conv1"
+	top: "rb4_bn2"
+	batch_norm_param {
+		use_global_stats: true
+	}
+	include {
+		phase: TEST
+	}
+}
+
+layer {
+  name: "rb4_relu2"
+  type: "ReLU"
+  bottom: "rb4_bn2"
+  top: "rb4_relu2"
+}
+
+layer {
+  	name: "rb4_conv2"
+	type: "Convolution"
+	bottom: "rb4_relu2"
+	top: "rb4_conv2"
+	param {
+		lr_mult: 1
+	}
+	param {
+		lr_mult: 2
+	}
+	convolution_param {
+		num_output: 128
+		kernel_size: 3
+		stride: 1
+		weight_filler {
+			type: "xavier"
+		}
+		bias_filler {
+			type: "constant"
+		}
+	}
+}
+
+
+layer {
+	name: "eltwise_sum4"
+	type: "Eltwise"
+	bottom: "eltwise_sum3"
+	bottom: "rb4_conv2"
+	top: "eltwise_sum4"
+	eltwise_param { 
+		operation: SUM
+	}
+}
+
+# residual block 4 end
+
+
