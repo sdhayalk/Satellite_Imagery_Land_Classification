@@ -1,8 +1,8 @@
 # The train/test net protocol buffer definition
-net: "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-50-train.prototxt"
+net: "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-train-val.prototxt"
 
 # test_iter specifies how many forward passes the test should carry out. In the case of MNIST, we have test batch size 100 and 100 test iterations, covering the full 10,000 testing images.
-test_iter: 100
+test_iter: 10
 
 # Carry out testing every 500 training iterations.
 test_interval: 100
@@ -25,7 +25,7 @@ display: 10
 max_iter: 10000
 
 # snapshot intermediate results
-snapshot: 333
+snapshot: 500
 snapshot_prefix: "G:/DL/satellite_imagery_land_classification/data/snapshot"
 
 # solver mode: CPU or GPU

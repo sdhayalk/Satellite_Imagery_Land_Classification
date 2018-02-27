@@ -11,6 +11,23 @@ layer {
     source: "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/dataset_train.txt"
     batch_size: 4
   }
+  include {
+		phase: TRAIN
+	}
+}
+
+layer {
+  name: "geodata"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  hdf5_data_param {
+    source: "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/dataset_validation.txt"
+    batch_size: 1
+  }
+  include {
+		phase: TEST
+	}
 }
 
 
@@ -63,6 +80,7 @@ layer {
 		num_output: 64
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -119,6 +137,7 @@ layer {
 		num_output: 64
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -166,13 +185,24 @@ layer {
 
 # residual block 1 end
 
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "eltwise_sum1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
 
 # residual block 2 start
 
 layer {
 	name: "rb2_bn1"
 	type: "BatchNorm"
-	bottom: "eltwise_sum1"
+	bottom: "pool1"
 	top: "rb2_bn1"
 	batch_norm_param {
 		use_global_stats: false
@@ -184,7 +214,7 @@ layer {
 layer {
 	name: "rb2_bn1"
 	type: "BatchNorm"
-	bottom: "data"
+	bottom: "pool1"
 	top: "rb2_bn1"
 	batch_norm_param {
 		use_global_stats: true
@@ -216,6 +246,7 @@ layer {
 		num_output: 64
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -272,6 +303,7 @@ layer {
 		num_output: 64
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -285,7 +317,7 @@ layer {
 layer {
 	name: "eltwise_sum2"
 	type: "Eltwise"
-	bottom: "eltwise_sum1"
+	bottom: "pool1"
 	bottom: "rb2_conv2"
 	top: "eltwise_sum2"
 	eltwise_param { 
@@ -295,14 +327,24 @@ layer {
 
 # residual block 2 end
 
-
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "eltwise_sum2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
 
 # residual block 3 start
 
 layer {
 	name: "rb3_bn1"
 	type: "BatchNorm"
-	bottom: "eltwise_sum2"
+	bottom: "pool2"
 	top: "rb3_bn1"
 	batch_norm_param {
 		use_global_stats: false
@@ -314,7 +356,7 @@ layer {
 layer {
 	name: "rb3_bn1"
 	type: "BatchNorm"
-	bottom: "eltwise_sum2"
+	bottom: "pool2"
 	top: "rb3_bn1"
 	batch_norm_param {
 		use_global_stats: true
@@ -346,6 +388,7 @@ layer {
 		num_output: 128
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -402,6 +445,7 @@ layer {
 		num_output: 128
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -415,7 +459,7 @@ layer {
 layer {
   	name: "rb3_conv0"
 	type: "Convolution"
-	bottom: "eltwise_sum2"
+	bottom: "pool2"
 	top: "rb3_conv0"
 	param {
 		lr_mult: 1
@@ -449,6 +493,17 @@ layer {
 
 # residual block 3 end
 
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "eltwise_sum3"
+  top: "pool3"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
 
 
 # residual block 4 start
@@ -456,7 +511,7 @@ layer {
 layer {
 	name: "rb4_bn1"
 	type: "BatchNorm"
-	bottom: "eltwise_sum3"
+	bottom: "pool3"
 	top: "rb4_bn1"
 	batch_norm_param {
 		use_global_stats: false
@@ -468,7 +523,7 @@ layer {
 layer {
 	name: "rb4_bn1"
 	type: "BatchNorm"
-	bottom: "data"
+	bottom: "pool3"
 	top: "rb4_bn1"
 	batch_norm_param {
 		use_global_stats: true
@@ -500,6 +555,7 @@ layer {
 		num_output: 128
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -556,6 +612,7 @@ layer {
 		num_output: 128
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -569,7 +626,7 @@ layer {
 layer {
 	name: "eltwise_sum4"
 	type: "Eltwise"
-	bottom: "eltwise_sum3"
+	bottom: "pool3"
 	bottom: "rb4_conv2"
 	top: "eltwise_sum4"
 	eltwise_param { 
@@ -579,14 +636,24 @@ layer {
 
 # residual block 4 end
 
-
+layer {
+  name: "pool4"
+  type: "Pooling"
+  bottom: "eltwise_sum4"
+  top: "pool4"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
 
 # residual block 5 start
 
 layer {
 	name: "rb5_bn1"
 	type: "BatchNorm"
-	bottom: "eltwise_sum4"
+	bottom: "pool4"
 	top: "rb5_bn1"
 	batch_norm_param {
 		use_global_stats: false
@@ -598,7 +665,7 @@ layer {
 layer {
 	name: "rb5_bn1"
 	type: "BatchNorm"
-	bottom: "data"
+	bottom: "pool4"
 	top: "rb5_bn1"
 	batch_norm_param {
 		use_global_stats: true
@@ -630,6 +697,7 @@ layer {
 		num_output: 256
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -686,6 +754,7 @@ layer {
 		num_output: 256
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -699,7 +768,7 @@ layer {
 layer {
   	name: "rb5_conv0"
 	type: "Convolution"
-	bottom: "eltwise_sum4"
+	bottom: "pool4"
 	top: "rb5_conv0"
 	param {
 		lr_mult: 1
@@ -733,14 +802,24 @@ layer {
 
 # residual block 5 end
 
-
+layer {
+  name: "pool5"
+  type: "Pooling"
+  bottom: "eltwise_sum5"
+  top: "pool5"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
 
 # residual block 6 start
 
 layer {
 	name: "rb6_bn1"
 	type: "BatchNorm"
-	bottom: "eltwise_sum5"
+	bottom: "pool5"
 	top: "rb6_bn1"
 	batch_norm_param {
 		use_global_stats: false
@@ -752,7 +831,7 @@ layer {
 layer {
 	name: "rb6_bn1"
 	type: "BatchNorm"
-	bottom: "data"
+	bottom: "pool5"
 	top: "rb6_bn1"
 	batch_norm_param {
 		use_global_stats: true
@@ -784,6 +863,7 @@ layer {
 		num_output: 256
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -840,6 +920,7 @@ layer {
 		num_output: 256
 		kernel_size: 3
 		stride: 1
+		pad: 1
 		weight_filler {
 			type: "xavier"
 		}
@@ -853,7 +934,7 @@ layer {
 layer {
 	name: "eltwise_sum6"
 	type: "Eltwise"
-	bottom: "eltwise_sum5"
+	bottom: "pool5"
 	bottom: "rb6_conv2"
 	top: "eltwise_sum6"
 	eltwise_param { 
@@ -863,4 +944,79 @@ layer {
 
 # residual block 6 end
 
+layer {
+  name: "pool6"
+  type: "Pooling"
+  bottom: "eltwise_sum6"
+  top: "pool6"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
 
+
+
+
+# defining first fully connected layer, also called as inner product, with name ip1
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  bottom: "pool6"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+# defining second fully connected layer, also called as inner product, with name ip2
+layer {
+  name: "ip2"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ip2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 21
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+}
+
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+}

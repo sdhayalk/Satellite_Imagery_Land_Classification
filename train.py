@@ -42,10 +42,10 @@ class Training:
 
 
 def main():
-	CNN_NETWORK_PATH = "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-50-train.prototxt"
-	CNN_SOLVER_PATH = "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-50-solver.prototxt"
-	CAFFEMODEL_PATH =  "G:/DL/satellite_imagery_land_classification/data/snapshot_iter_6327.caffemodel"
-	SOLVERSTATE_PATH =  "G:/DL/satellite_imagery_land_classification/data/snapshot_iter_6327.solverstate"
+	CNN_NETWORK_PATH = "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-train-val.prototxt"
+	CNN_SOLVER_PATH = "G:/DL/satellite_imagery_land_classification/Satellite_Imagery_Land_Classification/ResNet-solver.prototxt"
+	CAFFEMODEL_PATH =  "G:/DL/satellite_imagery_land_classification/data/snapshot_iter_6000.caffemodel"
+	SOLVERSTATE_PATH =  "G:/DL/satellite_imagery_land_classification/data/snapshot_iter_6000.solverstate"
 	USE_GPU = True
 	resume_training = True
 
